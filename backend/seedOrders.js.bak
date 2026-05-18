@@ -1,0 +1,212 @@
+const CheckoutModel = require('./Models/checkoutModel');
+const SignupModel = require('./Models/signupModels');
+const MenuItem = require('./Models/menuItemModel');
+
+async function seedOrders() {
+    try {
+        // Clear existing orders
+        await CheckoutModel.deleteMany({});
+        console.log('Cleared existing orders');
+
+        // Get users and menu items
+        const users = await SignupModel.find({ isManager: false });
+        const menuItems = await MenuItem.find();
+        
+        if (users.length === 0 || menuItems.length === 0) {
+            console.log('No users or menu items found to create orders');
+            return;
+        }
+
+        // Create test orders array
+        const orders = [
+            // Aman's orders
+            {
+                userId: users[0]._id,
+                items: [
+                    {
+                        id: menuItems[0].id,
+                        name: menuItems[0].name,
+                        price: menuItems[0].price,
+                        quantity: 2,
+                        img: menuItems[0].image
+                    },
+                    {
+                        id: menuItems[1].id,
+                        name: menuItems[1].name,
+                        price: menuItems[1].price,
+                        quantity: 1,
+                        img: menuItems[1].image
+                    }
+                ],
+                totalAmount: (menuItems[0].price * 2) + menuItems[1].price,
+                status: 'pending',
+                orderDate: new Date(),
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            },
+            // Khushi's orders
+            {
+                userId: users[1]._id,
+                items: [
+                    {
+                        id: menuItems[12].id,
+                        name: menuItems[12].name,
+                        price: menuItems[12].price,
+                        quantity: 1,
+                        img: menuItems[12].image
+                    },
+                    {
+                        id: menuItems[25].id,
+                        name: menuItems[25].name,
+                        price: menuItems[25].price,
+                        quantity: 2,
+                        img: menuItems[25].image
+                    }
+                ],
+                totalAmount: menuItems[12].price + (menuItems[25].price * 2),
+                status: 'preparing',
+                orderDate: new Date(Date.now() - 15 * 60000), // 15 minutes ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            },
+            // Simran's orders
+            {
+                userId: users[2]._id,
+                items: [
+                    {
+                        id: menuItems[20].id,
+                        name: menuItems[20].name,
+                        price: menuItems[20].price,
+                        quantity: 2,
+                        img: menuItems[20].image
+                    }
+                ],
+                totalAmount: menuItems[20].price * 2,
+                status: 'completed',
+                orderDate: new Date(Date.now() - 45 * 60000), // 45 minutes ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            },
+            // Megha's orders
+            {
+                userId: users[3]._id,
+                items: [
+                    {
+                        id: menuItems[16].id,
+                        name: menuItems[16].name,
+                        price: menuItems[16].price,
+                        quantity: 1,
+                        img: menuItems[16].image
+                    },
+                    {
+                        id: menuItems[23].id,
+                        name: menuItems[23].name,
+                        price: menuItems[23].price,
+                        quantity: 2,
+                        img: menuItems[23].image
+                    },
+                    {
+                        id: menuItems[18].id,
+                        name: menuItems[18].name,
+                        price: menuItems[18].price,
+                        quantity: 1,
+                        img: menuItems[18].image
+                    }
+                ],
+                totalAmount: menuItems[16].price + (menuItems[23].price * 2) + menuItems[18].price,
+                status: 'ready',
+                orderDate: new Date(Date.now() - 5 * 60000), // 5 minutes ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            }
+        ];
+            {
+                userId: user._id,
+                items: [
+                    {
+                        id: 1,
+                        name: "Sandwich",
+                        price: 50,
+                        quantity: 2,
+                        img: "/a1.avif"
+                    },
+                    {
+                        id: 2,
+                        name: "Coffee",
+                        price: 30,
+                        quantity: 1,
+                        img: "/a2.avif"
+                    }
+                ],
+                totalAmount: 130,
+                status: 'pending',
+                orderDate: new Date(),
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            },
+            {
+                userId: user._id,
+                items: [
+                    {
+                        id: 13,
+                        name: "Masala Dosa",
+                        price: 100,
+                        quantity: 1,
+                        img: "/a13.avif"
+                    }
+                ],
+                totalAmount: 100,
+                status: 'preparing',
+                orderDate: new Date(Date.now() - 30 * 60000), // 30 minutes ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            }
+        ]);
+
+        // Add some more orders with different statuses
+        const moreOrders = [
+            {
+                userId: users[0]._id, // Aman's second order
+                items: [
+                    {
+                        id: menuItems[19].id,
+                        name: menuItems[19].name,
+                        price: menuItems[19].price,
+                        quantity: 1,
+                        img: menuItems[19].image
+                    }
+                ],
+                totalAmount: menuItems[19].price,
+                status: 'ready',
+                orderDate: new Date(Date.now() - 20 * 60000), // 20 minutes ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            },
+            {
+                userId: users[1]._id, // Khushi's second order
+                items: [
+                    {
+                        id: menuItems[21].id,
+                        name: menuItems[21].name,
+                        price: menuItems[21].price,
+                        quantity: 3,
+                        img: menuItems[21].image
+                    },
+                    {
+                        id: menuItems[26].id,
+                        name: menuItems[26].name,
+                        price: menuItems[26].price,
+                        quantity: 2,
+                        img: menuItems[26].image
+                    }
+                ],
+                totalAmount: (menuItems[21].price * 3) + (menuItems[26].price * 2),
+                status: 'completed',
+                orderDate: new Date(Date.now() - 60 * 60000), // 1 hour ago
+                paymentId: 'pay_' + Math.random().toString(36).substr(2, 9)
+            }
+        ];
+
+        // Combine all orders and insert
+        const allOrders = [...testOrders, ...moreOrders];
+        await CheckoutModel.insertMany(allOrders);
+        console.log('Orders seeded successfully');
+    } catch (error) {
+        console.error('Error seeding orders:', error);
+    }
+}
+
+module.exports = seedOrders;
