@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 function MenuPage() {
-  const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,10 +62,6 @@ function MenuPage() {
     } catch (error) {
       console.error('Error updating availability:', error);
     }
-  };
-
-  const handleAddItem = () => {
-    navigate('/manager/add-item');
   };
 
   const filteredItems = selectedCategory === 'All'

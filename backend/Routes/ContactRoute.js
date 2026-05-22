@@ -39,7 +39,7 @@ contactRoute.post('/', async (req, res) => {
 // Get all contact messages (for admin)
 contactRoute.get('/', async (req, res) => {
     try {
-        const contacts = await contactModel.find().sort({ createdAt: -1 });
+        const contacts = await contactModel.find({ archived: { $ne: true } }).sort({ createdAt: -1 });
         res.json({
             status: "success",
             data: contacts
@@ -49,6 +49,64 @@ contactRoute.get('/', async (req, res) => {
         res.status(500).json({
             status: "error",
             message: "Failed to fetch messages"
+        });
+    }
+});
+
+// Mark a contact message as read
+contactRoute.put('/:id/read', async (req, res) => {
+    try {
+        const contact = await contactModel.findByIdAndUpdate(
+            req.params.id,
+            { isRead: true },
+            { new: true }
+        );
+
+        if (!contact) {
+            return res.status(404).json({
+                status: "error",
+                message: "Message not found"
+            });
+        }
+
+        res.json({
+            status: "success",
+            data: contact
+        });
+    } catch (error) {
+        console.error('Contact read update error:', error);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to mark message as read"
+        });
+    }
+});
+
+// Archive a contact message
+contactRoute.put('/:id/archive', async (req, res) => {
+    try {
+        const contact = await contactModel.findByIdAndUpdate(
+            req.params.id,
+            { archived: true },
+            { new: true }
+        );
+
+        if (!contact) {
+            return res.status(404).json({
+                status: "error",
+                message: "Message not found"
+            });
+        }
+
+        res.json({
+            status: "success",
+            data: contact
+        });
+    } catch (error) {
+        console.error('Contact archive error:', error);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to archive message"
         });
     }
 });

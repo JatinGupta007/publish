@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import showNotification from './common/Notification';
@@ -7,10 +7,6 @@ function Menu() {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
 
   const [defaultItems] = useState([
     { id: 1, name: "Sandwich", price: 50, quantity: 20, img: "/a1.avif" },
@@ -21,7 +17,7 @@ function Menu() {
     { id: 6, name: "Jeera Masala Soda", price: 25, quantity: 18, img: "/a7.avif" }
   ]);
 
-  const fetchMenuItems = async () => {
+  const fetchMenuItems = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:5000/api/menu/items');
       const data = await response.json();
@@ -45,7 +41,11 @@ function Menu() {
       console.log('Using default items due to error');
       setItems(defaultItems);
     }
-  };
+  }, [defaultItems]);
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, [fetchMenuItems]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);

@@ -4,7 +4,7 @@ const signupModels = require('../Models/signupModels');
 const { sendWelcomeEmail } = require('../utils/emailService');
 
 signupRoute.get('/',async(req,res)=>{
-    admin = await signupModels.find();
+    const admin = await signupModels.find();
     res.json({"msg":"success","value":admin});
 });
 

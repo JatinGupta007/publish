@@ -113,7 +113,7 @@ function AddItemPage() {
       });
 
       if (response.ok) {
-        const addedItem = await response.json();
+        await response.json();
         setMessage({ text: 'Item added successfully!', type: 'success' });
         
         // Reset form fields but keep the next ID

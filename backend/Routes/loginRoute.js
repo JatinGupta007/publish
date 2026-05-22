@@ -3,7 +3,7 @@ const loginRoute = express.Router();
 const signupModel = require('../Models/signupModels')
 
 loginRoute.get('/',async(req,res)=>{
-    admin = await signupModel.find();
+    const admin = await signupModel.find();
     res.json({"msg":"success","value":admin});
 });
 
