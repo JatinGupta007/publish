@@ -12,18 +12,19 @@ const managerData = [
 
 async function seedManager() {
     try {
-        // First, remove any existing manager account
-        await SignUpModel.deleteOne({ email: "manager@gmail.com" });
-        console.log('Cleared existing manager account');
-
-        // Force create new manager account
-        const managerAccount = await SignUpModel.create({
-            email: "Manager@gmail.com",
-            password: "manager@123",
-            username: "Canteen Manager",
-            isManager: true,
-            role: "manager"
-        });
+        const managerAccount = await SignUpModel.findOneAndUpdate(
+            { email: "manager@gmail.com" },
+            {
+                $setOnInsert: {
+                    email: "manager@gmail.com",
+                    password: "manager@123",
+                    username: "Canteen Manager",
+                    isManager: true,
+                    role: "manager"
+                }
+            },
+            { upsert: true, new: true }
+        );
 
         if (managerAccount) {
             console.log('Successfully created manager account:', {

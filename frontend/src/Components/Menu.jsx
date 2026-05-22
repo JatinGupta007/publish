@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import showNotification from './common/Notification';
+import { apiUrl } from '../utils/api';
 
 function Menu() {
   const navigate = useNavigate();
@@ -19,13 +20,16 @@ function Menu() {
 
   const fetchMenuItems = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/menu/items');
+      const response = await fetch(apiUrl('/api/menu/items'));
+      if (!response.ok) {
+        throw new Error('Failed to fetch menu items');
+      }
       const data = await response.json();
       if (data && data.length > 0) {
         console.log('Loaded menu items:', data);
         // Only show available items and map image property to img
         setItems(data.filter(item => item.available).map(item => ({
-          id: item.id,
+          id: item.id || item._id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,

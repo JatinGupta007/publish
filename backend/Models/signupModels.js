@@ -1,9 +1,22 @@
 const mongoose =require('mongoose');
 
 const signupSchema = mongoose.Schema({
-    email: String,
-    password: String,
-    username: String,
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        trim: true
+    },
     isManager: {
         type: Boolean,
         default: false

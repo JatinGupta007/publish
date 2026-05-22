@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../../utils/api';
 
 function AddItemPage() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function AddItemPage() {
   useEffect(() => {
     const fetchMenuItems = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/menu/items');
+        const response = await fetch(apiUrl('/api/menu/items'));
         const items = await response.json();
         const maxId = Math.max(...items.map(item => item.id), 0);
         setNewItem(prev => ({ ...prev, id: maxId + 1 }));
@@ -104,7 +105,7 @@ function AddItemPage() {
         quantity: Number(newItem.quantity)
       };
 
-      const response = await fetch('http://localhost:5000/api/menu/items', {
+      const response = await fetch(apiUrl('/api/menu/items'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import showNotification from './common/Notification';
+import { apiUrl } from '../utils/api';
 
 function Signup() {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState(null);
   const navigate = useNavigate();
@@ -12,11 +14,15 @@ function Signup() {
   const handleFormData = async (e) => {
     e.preventDefault();
 
-    const apiUrl = 'http://localhost:5000/api/signup';
-    const user = { email, password };
+    setErr(null);
+    const user = {
+      email: email.trim().toLowerCase(),
+      username: username.trim(),
+      password,
+    };
 
     try {
-      const response = await axios.post(apiUrl, user);
+      const response = await axios.post(apiUrl('/api/signup'), user);
       if (response.data.msg === "success") {
         showNotification('success', "Registered Successfully! Please login to continue.");
         setTimeout(() => navigate('/login'), 1500);
@@ -40,6 +46,8 @@ function Signup() {
             <h3 className='text-center'>Sign up </h3>
             <br />
             
+            <input type="text"  placeholder="Name" style={{color:'white'}} value={username} onChange={(e) => setUsername(e.target.value)} required className="form-control rounded-3 border border-secondary bg-transparent" />
+            <br />
             <input type="email"  placeholder="Email" style={{color:'white'}} value={email} onChange={(e) => setEmail(e.target.value)} required className="form-control rounded-3 border border-secondary bg-transparent" />
             <br />
             <input type="password" placeholder="Password" style={{color:'white'}} value={password} onChange={(e) => setPassword(e.target.value)} required className="form-control rounded-3 border border-secondary bg-transparent " />

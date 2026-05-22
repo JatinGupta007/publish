@@ -7,7 +7,8 @@ const { sendOrderConfirmationEmail, sendOrderStatusEmail } = require('../utils/e
 // Create new order
 router.post('/', async (req, res) => {
     try {
-        const { items, totalAmount, email } = req.body;
+        const { items, totalAmount, paymentMethod, paymentId } = req.body;
+        const email = req.body.email?.trim().toLowerCase();
 
         // Find the user by email
         const user = await SignupModel.findOne({ email });
@@ -20,7 +21,9 @@ router.post('/', async (req, res) => {
             userId: user._id,
             items,
             totalAmount,
-            status: 'pending',
+            paymentMethod,
+            paymentId,
+            status: req.body.status || 'pending',
             orderDate: new Date()
         });
 
@@ -52,6 +55,7 @@ router.post('/', async (req, res) => {
                 items: order.items,
                 totalAmount: order.totalAmount,
                 status: order.status,
+                paymentMethod: order.paymentMethod,
                 orderDate: order.orderDate
             }
         });
@@ -65,7 +69,7 @@ router.post('/', async (req, res) => {
 // Get orders by user email
 router.get('/user/:email', async (req, res) => {
     try {
-        const { email } = req.params;
+        const email = decodeURIComponent(req.params.email).trim().toLowerCase();
         console.log('Fetching orders for email:', email);
 
         // Find user by email

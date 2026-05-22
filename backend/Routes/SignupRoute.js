@@ -10,7 +10,16 @@ signupRoute.get('/',async(req,res)=>{
 
 signupRoute.post('/', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+    const username = req.body.username?.trim() || email?.split('@')[0];
+
+    if (!email || !password || !username) {
+      return res.status(400).json({
+        msg: "error",
+        error: "Name, email, and password are required"
+      });
+    }
 
     // Check if user already exists
     const existingUser = await signupModels.findOne({ email });
@@ -23,7 +32,12 @@ signupRoute.post('/', async (req, res) => {
     }
 
     // Create new user
-    const admin = await signupModels.create(req.body);
+    const admin = await signupModels.create({
+      email,
+      password,
+      username,
+      isManager: false
+    });
 
     // Send welcome email
     try {
@@ -38,11 +52,22 @@ signupRoute.post('/', async (req, res) => {
 
     res.status(201).json({
       msg: "success",
-      value: admin
+      value: {
+        id: admin._id,
+        email: admin.email,
+        username: admin.username,
+        isManager: admin.isManager
+      }
     });
 
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      return res.status(409).json({
+        msg: "error",
+        error: "Email already exists"
+      });
+    }
     res.status(500).json({
       msg: "error",
       error: "Internal server error"

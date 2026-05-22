@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import showNotification from './common/Notification';
+import { apiUrl } from '../utils/api';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -18,18 +19,19 @@ function Login() {
     setErr(null);
 
     try {
-      const user = { email, password };
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = { email: normalizedEmail, password };
       
       // Use the appropriate login endpoint based on user selection
-      const apiUrl = isManager 
-        ? 'http://localhost:5000/api/manager/login' 
-        : 'http://localhost:5000/api/login';
+      const loginPath = isManager
+        ? '/api/manager/login'
+        : '/api/login';
 
-      const response = await axios.post(apiUrl, user);
+      const response = await axios.post(apiUrl(loginPath), user);
 
       if (response.data.msg === "success") {
-        login(response.data.token || 'dummy-token', isManager, email);
-        showNotification('success', isManager ? "Welcome Manager!" : `Welcome ${email.split('@')[0]}!`);
+        login(response.data.token || 'dummy-token', response.data.user?.isManager ?? isManager, response.data.user?.email || normalizedEmail);
+        showNotification('success', isManager ? "Welcome Manager!" : `Welcome ${normalizedEmail.split('@')[0]}!`);
         setTimeout(() => navigate(isManager ? '/manager' : '/menu'), 1500);
       } else {
         showNotification('error', "Username or password incorrect");

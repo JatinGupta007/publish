@@ -302,13 +302,14 @@ const initialMenuItems = [
 
 async function seedDatabase() {
     try {
-        // Clear existing menu items
-        await MenuItem.deleteMany({});
-        console.log('Cleared existing menu items');
-
-        // Insert new menu items
-        await MenuItem.insertMany(initialMenuItems);
-        console.log('Menu items seeded successfully');
+        for (const item of initialMenuItems) {
+            await MenuItem.updateOne(
+                { id: item.id },
+                { $setOnInsert: item },
+                { upsert: true }
+            );
+        }
+        console.log('Menu seed data ensured');
     } catch (error) {
         console.error('Error seeding database:', error);
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../../utils/api';
 
 function MessagesPage() {
   const [messages, setMessages] = useState([]);
@@ -20,7 +21,7 @@ function MessagesPage() {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
+      const response = await fetch(apiUrl('/api/contact'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -52,7 +53,7 @@ function MessagesPage() {
 
   const handleArchive = async (messageId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/contact/${messageId}/archive`, {
+      const response = await fetch(apiUrl(`/api/contact/${messageId}/archive`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -79,7 +80,7 @@ function MessagesPage() {
 
   const handleMarkAsRead = async (messageId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/contact/${messageId}/read`, {
+      const response = await fetch(apiUrl(`/api/contact/${messageId}/read`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`

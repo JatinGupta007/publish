@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { apiUrl } from '../../utils/api';
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -15,7 +16,7 @@ function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/orders');
+      const response = await axios.get(apiUrl('/api/orders'));
       console.log('Fetched orders:', response.data);
       setOrders(response.data);
       setError(null);
@@ -52,7 +53,7 @@ function OrdersPage() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       // Update order status
-      const response = await axios.patch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const response = await axios.patch(apiUrl(`/api/orders/${orderId}/status`), {
         status: newStatus
       });
       

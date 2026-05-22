@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../../utils/api';
 
 function MenuPage() {
   const [menuItems, setMenuItems] = useState([]);
@@ -28,7 +29,7 @@ function MenuPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:5000/api/menu/items');
+      const response = await fetch(apiUrl('/api/menu/items'));
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }
@@ -45,7 +46,7 @@ function MenuPage() {
   const handleAvailabilityToggle = async (id) => {
     try {
       const item = menuItems.find(item => item.id === id);
-      const response = await fetch(`http://localhost:5000/api/menu/items/${id}/availability`, {
+      const response = await fetch(apiUrl(`/api/menu/items/${id}/availability`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

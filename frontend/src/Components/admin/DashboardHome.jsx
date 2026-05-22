@@ -1,31 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { apiUrl } from '../../utils/api';
 
 function DashboardHome() {
-  // Mock data - replace with real data from backend
-  const stats = {
-    ordersToday: 45,
-    totalRevenue: 15750,
-    pendingOrders: 8,
-    activeCustomers: 120,
-    popularItems: [
-      { name: 'Masala Dosa', orders: 15, revenue: 1500 },
-      { name: 'Veg Biryani', orders: 12, revenue: 1440 },
-      { name: 'Paneer Butter Masala', orders: 10, revenue: 1200 },
-      { name: 'Chole Bhature', orders: 8, revenue: 720 }
-    ],
-    recentOrders: [
-      { id: 'ORD001', customer: 'Rahul S.', items: 3, total: 350, status: 'Preparing' },
-      { id: 'ORD002', customer: 'Priya M.', items: 2, total: 180, status: 'Ready' },
-      { id: 'ORD003', customer: 'Amit K.', items: 4, total: 420, status: 'Pending' },
-      { id: 'ORD004', customer: 'Neha P.', items: 1, total: 120, status: 'Preparing' }
-    ],
-    recentCustomers: [
-      { name: 'Rahul S.', orders: 15, lastOrder: '2 hours ago' },
-      { name: 'Priya M.', orders: 8, lastOrder: '1 hour ago' },
-      { name: 'Amit K.', orders: 12, lastOrder: '30 mins ago' },
-      { name: 'Neha P.', orders: 5, lastOrder: '15 mins ago' }
-    ]
+  const [stats, setStats] = useState({
+    ordersToday: 0,
+    totalRevenue: 0,
+    pendingOrders: 0,
+    activeCustomers: 0,
+    popularItems: [],
+    recentOrders: [],
+    recentCustomers: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsResponse, reportsResponse, ordersResponse, customersResponse] = await Promise.all([
+        axios.get(apiUrl('/api/manager/stats')),
+        axios.get(apiUrl('/api/manager/reports')),
+        axios.get(apiUrl('/api/orders')),
+        axios.get(apiUrl('/api/manager/customers'))
+      ]);
+
+      setStats({
+        ordersToday: statsResponse.data.ordersToday || 0,
+        totalRevenue: statsResponse.data.totalRevenue || 0,
+        pendingOrders: statsResponse.data.pendingOrders || 0,
+        activeCustomers: statsResponse.data.totalCustomers || customersResponse.data.length || 0,
+        popularItems: (reportsResponse.data.popularItems || []).map(item => ({
+          name: item._id,
+          orders: item.totalOrdered,
+          revenue: item.revenue
+        })),
+        recentOrders: (ordersResponse.data || []).slice(0, 4).map(order => ({
+          id: order.orderId || order._id?.slice(-6),
+          customer: order.customerName || order.customerEmail || 'Guest',
+          items: order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+          status: order.status || 'pending'
+        })),
+        recentCustomers: (customersResponse.data || []).slice(0, 4).map(customer => ({
+          name: customer.username || customer.email,
+          orders: '-',
+          lastOrder: customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : 'N/A'
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   const getStatusBadgeClass = (status) => {
     switch (status.toLowerCase()) {
@@ -52,7 +81,7 @@ function DashboardHome() {
           <button className="btn btn-outline-primary me-2">
             <i className="fas fa-download me-2"></i>Download Report
           </button>
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={fetchDashboardData}>
             <i className="fas fa-sync-alt me-2"></i>Refresh Data
           </button>
         </div>
@@ -66,7 +95,7 @@ function DashboardHome() {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <div className="fs-6 text-muted mb-1">Orders Today</div>
-                  <div className="fs-4 fw-bold">{stats.ordersToday}</div>
+                  <div className="fs-4 fw-bold">{loading ? '...' : stats.ordersToday}</div>
                   <div className="small text-success">
                     <i className="fas fa-arrow-up me-1"></i>12% increase
                   </div>
@@ -84,7 +113,7 @@ function DashboardHome() {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <div className="fs-6 text-muted mb-1">Total Revenue</div>
-                  <div className="fs-4 fw-bold">₹{stats.totalRevenue}</div>
+                  <div className="fs-4 fw-bold">₹{loading ? '...' : stats.totalRevenue}</div>
                   <div className="small text-success">
                     <i className="fas fa-arrow-up me-1"></i>8% increase
                   </div>
@@ -102,7 +131,7 @@ function DashboardHome() {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <div className="fs-6 text-muted mb-1">Pending Orders</div>
-                  <div className="fs-4 fw-bold">{stats.pendingOrders}</div>
+                  <div className="fs-4 fw-bold">{loading ? '...' : stats.pendingOrders}</div>
                   <div className="small text-warning">
                     <i className="fas fa-clock me-1"></i>Need attention
                   </div>
@@ -120,7 +149,7 @@ function DashboardHome() {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <div className="fs-6 text-muted mb-1">Active Customers</div>
-                  <div className="fs-4 fw-bold">{stats.activeCustomers}</div>
+                  <div className="fs-4 fw-bold">{loading ? '...' : stats.activeCustomers}</div>
                   <div className="small text-success">
                     <i className="fas fa-arrow-up me-1"></i>5% increase
                   </div>

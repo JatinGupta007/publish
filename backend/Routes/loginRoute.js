@@ -9,8 +9,9 @@ loginRoute.get('/',async(req,res)=>{
 
 loginRoute.post('/', async(req,res) => {
     try {
-        const { email, password } = req.body;
-        const user = await signupModel.findOne({ email: email });
+        const email = req.body.email?.trim().toLowerCase();
+        const { password } = req.body;
+        const user = await signupModel.findOne({ email });
 
         if (!user) {
             return res.status(404).json({
@@ -31,7 +32,13 @@ loginRoute.post('/', async(req,res) => {
         if (user.password === password) {
             return res.json({
                 msg: "success",
-                token: "customer-token"  // You may want to implement proper JWT tokens
+                token: "customer-token",
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    username: user.username,
+                    isManager: user.isManager
+                }
             });
         } else {
             return res.status(401).json({
@@ -51,7 +58,7 @@ loginRoute.post('/', async(req,res) => {
 // Route to check if user exists and get their type
 loginRoute.post('/check-user', async(req,res)=>{
     try {
-        const { email } = req.body;
+        const email = req.body.email?.trim().toLowerCase();
         const user = await signupModel.findOne({ email });
         
         if (!user) {

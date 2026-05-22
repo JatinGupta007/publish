@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { apiUrl } from '../utils/api';
 
 function Checkout() {
   const [cartItems, setCartItems] = useState([]);
@@ -106,11 +107,13 @@ function Checkout() {
       }, 5000);
 
       // Send order to backend
-      const authData = JSON.parse(localStorage.getItem('authData') || '{}');
-      const storedEmail = authData.userEmail || localStorage.getItem('userEmail');
+      const storedEmail = localStorage.getItem('userEmail');
+      if (!storedEmail) {
+        throw new Error('Please log in before placing an order.');
+      }
       
       console.log('Creating order for email:', storedEmail);
-      const response = await axios.post('http://localhost:5000/api/checkout', {
+      const response = await axios.post(apiUrl('/api/checkout'), {
         items: cartItems.map(item => ({
           id: item.id,
           name: item.name,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { apiUrl } from '../../utils/api';
 
 function CustomersPage() {
   const [customers, setCustomers] = useState([]);
@@ -13,7 +14,7 @@ function CustomersPage() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/manager/customers');
+      const response = await axios.get(apiUrl('/api/manager/customers'));
       setCustomers(response.data);
       setLoading(false);
     } catch (err) {

@@ -9,7 +9,8 @@ const managerRoute = require('./Routes/managerRoute');
 const menuItemRoute = require('./Routes/menuItemRoute');
 const orderRoute = require('./Routes/orderRoute');
 const checkoutRoute = require('./Routes/CheckoutRoute');
-const url = "mongodb://127.0.0.1:27017/SmartCanteenUser";
+const url =
+    "mongodb+srv://Jatin:jatin123@cluster0.ut6taig.mongodb.net/ecommerce?appName=Cluster0";
 
 const app = express();
 app.use(express.json());

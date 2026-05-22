@@ -27,7 +27,7 @@ router.get('/orders', async (req, res) => {
   try {
     const orders = await CheckoutModel.find()
       .populate('userId', 'username email')
-      .sort({ createdAt: -1 });
+      .sort({ orderDate: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -64,8 +64,8 @@ router.get('/customers/:customerId/orders', async (req, res) => {
     }
     
     const orders = await CheckoutModel.find({ userId: customerId })
-      .sort({ createdAt: -1 })
-      .select('items totalAmount status createdAt');
+      .sort({ orderDate: -1 })
+      .select('items totalAmount status orderDate');
       
     res.json(orders);
   } catch (error) {
@@ -88,7 +88,7 @@ router.get('/stats', async (req, res) => {
     ] = await Promise.all([
       CheckoutModel.countDocuments(),
       CheckoutModel.countDocuments({
-        createdAt: { $gte: today }
+        orderDate: { $gte: today }
       }),
       SignUpModels.countDocuments({ isManager: { $ne: true } }),
       CheckoutModel.aggregate([
@@ -128,15 +128,15 @@ router.get('/reports', async (req, res) => {
       CheckoutModel.aggregate([
         {
           $match: {
-            createdAt: { $gte: oneMonthAgo }
+            orderDate: { $gte: oneMonthAgo }
           }
         },
         {
           $group: {
             _id: {
-              year: { $year: "$createdAt" },
-              month: { $month: "$createdAt" },
-              day: { $dayOfMonth: "$createdAt" }
+              year: { $year: "$orderDate" },
+              month: { $month: "$orderDate" },
+              day: { $dayOfMonth: "$orderDate" }
             },
             revenue: { $sum: "$totalAmount" }
           }
@@ -199,7 +199,8 @@ router.get('/reports', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const email = req.body.email?.trim().toLowerCase();
+        const { password } = req.body;
         
         // Specifically look for manager account
         const user = await SignUpModels.findOne({ 
@@ -234,6 +235,7 @@ router.post('/login', async (req, res) => {
                 msg: "success",
                 token: "manager-token",
                 user: {
+                    id: user._id,
                     email: user.email,
                     username: user.username,
                     isManager: user.isManager

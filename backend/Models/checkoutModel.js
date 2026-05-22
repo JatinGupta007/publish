@@ -18,6 +18,7 @@ const checkoutSchema = mongoose.Schema({
         required: true
     },
     paymentId: String,
+    paymentMethod: String,
     status: {
         type: String,
         enum: ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'],

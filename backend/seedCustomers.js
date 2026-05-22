@@ -29,13 +29,14 @@ const customerData = [
 
 async function seedCustomers() {
     try {
-        // Clear existing customers (but not managers)
-        await SignUpModel.deleteMany({ isManager: false });
-        console.log('Cleared existing customers');
-
-        // Insert new customers
-        await SignUpModel.insertMany(customerData);
-        console.log('Successfully seeded customer data');
+        for (const customer of customerData) {
+            await SignUpModel.updateOne(
+                { email: customer.email.toLowerCase() },
+                { $setOnInsert: { ...customer, email: customer.email.toLowerCase() } },
+                { upsert: true }
+            );
+        }
+        console.log('Customer seed data ensured');
     } catch (error) {
         console.error('Error seeding customers:', error);
     }

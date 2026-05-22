@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import showNotification from './common/Notification';
+import { apiUrl } from '../utils/api';
 
 // Helper function to format currency
 const formatPrice = (price) => {
@@ -23,7 +24,7 @@ function Orderhistory() {
 
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/checkout/user/${userEmail}`);
+        const response = await axios.get(apiUrl(`/api/checkout/user/${encodeURIComponent(userEmail)}`));
         setOrders(response.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)));
         setLoading(false);
       } catch (error) {

@@ -4,9 +4,11 @@ const MenuItem = require('./Models/menuItemModel');
 
 const seedOrders = async () => {
     try {
-        // Clear existing orders
-        await CheckoutModel.deleteMany({});
-        console.log('Cleared existing orders');
+        const existingOrders = await CheckoutModel.countDocuments();
+        if (existingOrders > 0) {
+            console.log('Orders already exist, skipping order seed');
+            return;
+        }
 
         // Get users and menu items
         const users = await SignupModel.find({ isManager: false });
@@ -127,7 +129,6 @@ const seedOrders = async () => {
             }
         ];
 
-        // Insert orders into database
         await CheckoutModel.insertMany(orders);
         console.log('Orders seeded successfully');
 
